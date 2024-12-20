@@ -31,7 +31,7 @@ DEBUG = True
 # Asegúrate de agregar los hosts permitidos
 ALLOWED_HOSTS = [
     'mediciones1-2t9ri9ga.b4a.run', 
-    'node293a.containers.back4app.com', 
+    '.containers.back4app.com',  # Permitir cualquier subdominio
     '.back4app.io', 
     'tu_dominio.com'
 ]
