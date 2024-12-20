@@ -1,0 +1,124 @@
+{% extends "base/edicioncarga.html" %}
+{% block contenedor %}
+<div class="barra-superior">
+    {% if user in user_analisis %}
+        <a href="{% url 'grupos_trabajo' %}">&#x1F81C; Volver</a>
+    {% else %}
+        <a href="{% url 'grupos_trabajo' %}">&#x1F81C; Volver</a>
+    {% endif %}
+</div>
+<div class="cuerpo-tarjeta">
+    <h1>{{ titulo_tarea }}</h1>
+    <form method="POST" action="" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if user in user_superuser %}
+            <a>Muestra obtenida {{ form.completo }}</a><p></p>
+            <a>Muestra medida {{ form.medicion_completa }}</a><p></p>
+            <a>Muestra medida gamma {{ form.medicion_gamma }}</a><p></p>
+            <a>Fecha de medición alfa y beta {{ form.fecha_medicion }}</a><p></p>
+            <a>Fecha de medición gamma {{ form.fecha_medicion_gamma }}</a><p></p>
+            <a>Muestra obtenida por:{{form.integrantes}}</a><p></p>
+            <a>Sin muestra:{{form.justificacion}}</a><p></p>
+            <label for="archivo">Cargar archivo de medición</label><p></p>
+            <input type="file" name="archivo" multiple><p></p>
+            <input class="button" type="submit" name="enviar_formulario" value="Enviar" onclick="return confirmarCambios('{{ titulo_tarea }}')">
+            <h2>Archivos cargados:</h2>
+            <ul>
+                {% for archivo in archivos %}
+                    {% if archivo.archivo.url %}
+                        <li>
+                            <a href="{{ archivo.archivo.url }}" target="_blank">{{ archivo.archivo.name }}</a>
+                            <form method="post" style="display:inline;" action="{% url 'eliminar-archivo' archivo.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar este archivo?');">&#x1F5D1;</button>
+                            </form>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if user in user_visita %}
+            <a>Fecha de medición alfa y beta {{ form.fecha_medicion }}</a><p></p>
+            <a>Fecha de medición gamma {{ form.fecha_medicion_gamma }}</a><p></p>
+            <h2>Archivos cargados:</h2>
+            <ul>
+                {% for archivo in archivos %}
+                    {% if archivo.archivo.url %}
+                        <li><a href="{{ archivo.archivo.url }}" target="_blank">{{ archivo.archivo.name }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if user in user_analisis %}
+            <a>Fecha de medición alfa y beta {{ form.fecha_medicion }}</a><p></p>
+            <a>Fecha de medición gamma {{ form.fecha_medicion_gamma }}</a><p></p>
+            <h2>Archivos cargados:</h2>
+            <ul>
+                {% for archivo in archivos %}
+                    {% if archivo.archivo.url %}
+                        <li><a href="{{ archivo.archivo.url }}" target="_blank">{{ archivo.archivo.name }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if user in user_muestreo and form.instance.medicion_completa %}
+            <a>Ya se midió esta muestra</a><p></p>
+        {% elif user in user_muestreo %}
+            <a>Muestra obtenida {{ form.completo }}</a><p></p>
+            <a>Muestra obtenida por:{{form.integrantes}}</a><p></p>
+            <a>Sin muestra:{{form.justificacion}}</a><p></p>
+            <input class="button" type="submit" name="enviar_formulario" value="Enviar" onclick="return confirmarCambios('{{ titulo_tarea }}')">
+        {% endif %}
+
+        {% if user in user_mediciones %}
+            <a>Muestra obtenida {{ form.completo }}</a><p></p>
+            <a>Muestra medida alfa y beta {{ form.medicion_completa }}</a><p></p>
+            <a>Fecha de medición alfa y beta {{ form.fecha_medicion }}</a><p></p>
+            <a>Fecha de medición gamma {{ form.fecha_medicion_gamma }}</a><p></p>
+            <a>Muestra obtenida por:{{form.integrantes}}</a><p></p>
+            <a>Sin muestra:{{form.justificacion}}</a><p></p>
+            <label for="archivo">Cargar archivo de medición</label><p></p>
+            <input type="file" name="archivo" multiple><p></p>
+            <h2>Archivos cargados:</h2>
+            <ul>
+                {% for archivo in archivos %}
+                    {% if archivo.archivo.url %}
+                        <a>{{ form.titulo }}</a>
+                        <li><a href="{{ archivo.archivo.url }}" target="_blank">{{ archivo.archivo.name }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            <input class="button" type="submit" name="enviar_formulario" value="Enviar" onclick="return confirmarCambios('{{ titulo_tarea }}')">
+        {% endif %}
+        {% if user in user_gamma %}
+        <a>Muestra obtenida {{ form.completo }}</a><p></p>
+        <a>Muestra medida alfa y beta {{ form.medicion_completa }}</a><p></p>
+        <a>Muestra medida gamma {{ form.medicion_gamma }}</a><p></p>
+        <a>Fecha de medición alfa y beta {{ form.fecha_medicion }}</a><p></p>
+        <a>Fecha de medición gamma {{ form.fecha_medicion_gamma }}</a><p></p>
+        <a>Muestra obtenida por:{{form.integrantes}}</a><p></p>
+        <label for="archivo">Cargar archivo de medición</label><p></p>
+        <input type="file" name="archivo" multiple><p></p>
+        <h2>Archivos cargados:</h2>
+        <ul>
+            {% for archivo in archivos %}
+                {% if archivo.archivo.url %}
+                    <a>{{ form.titulo }}</a>
+                    <li><a href="{{ archivo.archivo.url }}" target="_blank">{{ archivo.archivo.name }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <input class="button" type="submit" name="enviar_formulario" value="Enviar" onclick="return confirmarCambios('{{ titulo_tarea }}')">
+    {% endif %}
+    </form>
+</div>
+
+<script>
+    function confirmarCambios(tituloTarea) {
+        return confirm(`¿Seguro que deseas realizar estos cambios en "${tituloTarea}"?`);
+    }
+</script>
+{% endblock contenedor%}

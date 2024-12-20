@@ -1,0 +1,366 @@
+views.py
+from .models import Tarea, Archivo
+from django.views import View
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.models import  Group
+from django.views.generic.list import ListView
+from django.views.generic.edit import UpdateView
+from django.contrib.auth.views import LoginView
+from django.urls import reverse_lazy
+from django.contrib.auth.views import LoginView
+from django.urls import reverse_lazy
+
+class Logueo(LoginView):
+    template_name = "base/login.html"
+    redirect_authenticated_user = True
+
+    def get_success_url(self):
+        return reverse_lazy("tareas")
+
+class listaPendientes(ListView):
+    model = Tarea
+    context_object_name = "tareas"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        valor_buscado = self.request.GET.get("titulo", "")
+        completo = self.request.GET.get("completo")
+        medicion_completa = self.request.GET.get("medicion_completa")
+        tareas = Tarea.objects.all()
+        if valor_buscado:
+            tareas = tareas.filter(titulo__icontains=valor_buscado)
+        if completo is not None and completo != "":
+            tareas = tareas.filter(completo=(completo == 'True'))
+        if medicion_completa is not None and medicion_completa != "":
+            tareas = tareas.filter(medicion_completa=(medicion_completa == 'True'))    
+        context["tareas"] = tareas
+        context["valor_buscado"] = valor_buscado
+        context["completo"] = completo
+        context["medicion_completa"] = medicion_completa
+        return context
+
+
+
+
+
+class EditarTareas(UpdateView):
+    model = Tarea
+    fields = ['completo', 'medicion_completa', 'fecha_medicion',"integrantes"]
+    success_url = reverse_lazy('tareas')
+    def post(self, request, *args, **kwargs):
+        if 'guardar_archivo' in request.POST:
+            return self.handle_cargar_archivo(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
+    def handle_cargar_archivo(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if request.FILES.getlist('archivo'):
+            archivos = request.FILES.getlist('archivo')
+            for archivo in archivos:
+                Archivo.objects.create(tarea=self.object, archivo=archivo)
+        return redirect('editar-tarea', pk=self.object.pk)
+    def form_valid(self, form):
+        tarea = form.save(commit=False)
+        tarea.usuario = self.request.user
+        tarea.save()
+        return redirect(self.success_url)
+        return redirect('editar-tarea', pk=self.object.pk)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['archivos'] = self.object.archivos.all()
+        context['form'] = self.get_form()
+        try:
+            context['user_visita'] = Group.objects.get(name='Visitantes').user_set.all()
+        except Group.DoesNotExist:
+            context['user_visita'] = []
+        try:
+            context['user_muestreo'] = Group.objects.get(name='muestreo').user_set.all()
+        except Group.DoesNotExist:
+            context['user_muestreo'] = []
+        try:
+            context['user_mediciones'] = Group.objects.get(name='mediciones').user_set.all()
+        except Group.DoesNotExist:
+            context['user_mediciones'] = []
+        try:
+            context['user_superuser'] = Group.objects.get(name='superuser').user_set.all()
+        except Group.DoesNotExist:
+            context['user_superuser'] = []
+        return context
+
+
+class EliminarArchivo(View):
+    def post(self, request, archivo_id):
+        archivo = get_object_or_404(Archivo, id=archivo_id)
+        tarea_id = archivo.tarea.id
+        archivo.archivo.delete()
+        archivo.delete()
+        return redirect('editar-tarea', pk=tarea_id)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+urls.py
+
+from django.urls import path
+from .views import listaPendientes, EditarTareas, Logueo, EliminarArchivo
+from django.contrib.auth.views import LogoutView
+from django.contrib.auth.decorators import login_required
+from django.conf.urls.static import static
+from django.conf import settings
+
+urlpatterns = [
+    path("", login_required(listaPendientes.as_view()), name="tareas"),
+    path("login/", Logueo.as_view(), name="login"),
+    path("logout/", login_required(LogoutView.as_view(next_page="login")), name="logout"),
+    path("editar-tarea/<int:pk>", login_required(EditarTareas.as_view()), name="editar-tarea"),
+    path("eliminar-archivo/<int:archivo_id>/", login_required(EliminarArchivo.as_view()), name="eliminar-archivo"),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+models.py
+from django.db import models
+from django.contrib.auth.models import User
+
+class Tarea(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    titulo = models.CharField(max_length=250)
+    integrantes = models.TextField(null=True, blank=True)
+    completo = models.BooleanField(default=False)
+    creado = models.DateTimeField(auto_now_add=True)
+    fecha = models.DateField(null=True, blank=True)
+    hora = models.TimeField(null=True, blank=True)
+    fecha_medicion = models.DateField(null=True, blank=True)
+    medicion_completa = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.titulo
+
+    class Meta:
+        ordering = ["completo"]
+
+class Archivo(models.Model):
+    tarea = models.ForeignKey(Tarea, related_name="archivos", on_delete=models.CASCADE)
+    archivo = models.FileField(upload_to="protocolos/")
+
+    def __str__(self):
+        return self.archivo.name
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+template:
+tarea_list.htmls
+{% extends "base/principal.html" %}
+{% block content %}
+
+<div class="barra-superior">
+    <h1>Sistema de gestión y seguimiento del Monitoreo Ambiental Radiológico</h1>
+    {% if request.user.is_authenticated %}
+        <form action="{% url "logout" %}" method="POST" class="boton-salir">
+            {% csrf_token %}
+            <input class="button-filtro" type="submit" value="Salir">
+        </form>
+    {% else %}
+        <a href="{% url "login" %}" class="button-filtro">Ingresar</a>
+    {% endif %}
+</div>
+
+
+<!-- Filtros -->
+<form method="GET" action="{% url 'tareas' %}" class="filtros-nav">
+    <div class="filtro-grupo">
+        <label for="titulo">Buscar por título</label>
+        <input type="text" name="titulo" placeholder="Buscar por título" value="{{ valor_buscado }}">
+    </div>
+    <div class="filtro-grupo">
+        <label for="completo">Muestras Recolectadas</label>
+        <select name="completo">
+            <option value="">Seleccione</option>
+            <option value="True" {% if completo == "True" %}selected{% endif %}>Sí</option>
+            <option value="False" {% if completo == "False" %}selected{% endif %}>No</option>
+        </select>
+    </div>
+    <div class="filtro-grupo">
+        <label for="medicion_completa">Medición Completa</label>
+        <select name="medicion_completa">
+            <option value="">Seleccione</option>
+            <option value="True" {% if medicion_completa == "True" %}selected{% endif %}>Sí</option>
+            <option value="False" {% if medicion_completa == "False" %}selected{% endif %}>No</option>
+        </select>
+    </div>
+    <button type="submit" class="button-filtro">Aplicar filtros</button>
+</form>
+
+<!-- Fin de Filtros -->
+
+<div class="envoltorio-items-tarea">
+    {% for tarea in tareas %}
+    <div class="envoltorio-tarea">
+        {% if tarea.completo and tarea.medicion_completa %}
+        <div class="titulo-tarea">
+            <div class="icono-medicion-completa"></div>
+            <i><a href="{% url 'editar-tarea' tarea.id %}">{{ tarea.titulo }}&nbsp;&nbsp;&nbsp;&nbsp;Estado: Muestra Obtenida por&nbsp;{{ tarea.integrantes }}&nbsp;&nbsp;&nbsp;&nbsp;Estado: Medida&nbsp;{{ tarea.fecha_medicion }}</a></i>
+        </div>
+        <td><a href="{% url 'editar-tarea' tarea.id %}">&#8684;</a></td>
+        {% elif tarea.completo %}
+        <div class="titulo-tarea">
+            <div class="icono-tarea-completa"></div>
+            <i><a href="{% url 'editar-tarea' tarea.id %}">{{ tarea.titulo }}&nbsp;&nbsp;&nbsp;&nbsp;Estado: Muestra Obtenida por&nbsp;{{ tarea.integrantes }}&nbsp;&nbsp;&nbsp;&nbsp;Falta medir</a></i>
+        </div>
+        <td><a href="{% url 'editar-tarea' tarea.id %}">&#8684;</a></td>
+        {% else %}
+        <div class="titulo-tarea">
+            <div class="icono-tarea-incompleta"></div>
+            <a href="{% url 'editar-tarea' tarea.id %}">{{ tarea.titulo }}&nbsp;&nbsp;&nbsp;&nbsp;Estado: Sin muestra&nbsp;&nbsp;&nbsp;&nbsp;Fecha limite:&nbsp;{{ tarea.fecha }}</a>
+        </div>
+        <td><a href="{% url 'editar-tarea' tarea.id %}">&#8684;</a></td>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock content %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+tarea_form
+{% extends "base/edicioncarga.html" %}
+{% block contenedor %}
+<div class="barra-superior">
+    <a href="{% url 'tareas' %}">&#x1F81C; Volver</a>
+</div>
+<div class="cuerpo-tarjeta">
+    <form method="POST" action="" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if user in user_muestreo and form.instance.medicion_completa %} 
+            <a>Ya se midió esta muestra</a><p></p>
+        {% elif user in user_muestreo %}
+            <a>Muestra obtenida {{ form.completo }}</a><p></p>
+            <a>Muestra obtenida por:{{form.integrantes}}</a><p></p>
+            <input class="button" type="submit" name="enviar_formulario" value="Enviar">
+        {% endif %}
+        {% if user in user_mediciones %}
+            <a>Muestra obtenida {{ form.completo }}</a><p></p>
+            <a>Muestra medida {{ form.medicion_completa }}</a><p></p>
+            <a>Fecha de medición {{ form.fecha_medicion }}</a><p></p>
+            <a>Muestra obtenida por:{{form.integrantes}}</a><p></p>
+            <label for="archivo">Cargar archivo de medición</label><p></p>
+            <input type="file" name="archivo" multiple><p></p>
+            <input class="button" type="submit" name="guardar_archivo" value="Guardar Archivo"><p></p>
+            <input class="button" type="submit" name="enviar_formulario" value="Enviar">
+        
+            <h2>Archivos cargados:</h2>
+            <ul>
+                {% for archivo in archivos %}
+                    {% if archivo.archivo.url %}
+                        <li><a href="{{ archivo.archivo.url }}" target="_blank">{{ archivo.archivo.name }}</a></li>
+                    {% endif %}
+                {% endfor %} 
+        {%elif user in user_superuser%}
+            <a>Muestra obtenida {{ form.completo }}</a><p></p>
+            <a>Muestra medida {{ form.medicion_completa }}</a><p></p>
+            <a>Fecha de medición {{ form.fecha_medicion }}</a><p></p>
+            <a>Muestra obtenida por:{{form.integrantes}}</a><p></p>
+            <label for="archivo">Cargar archivo de medición</label><p></p>
+            <input type="file" name="archivo" multiple><p></p>
+            <input class="button" type="submit" name="guardar_archivo" value="Guardar Archivo"><p></p>
+            <input class="button" type="submit" name="enviar_formulario" value="Enviar">
+            <h2>Archivos cargados:</h2>
+            <ul>
+                {% for archivo in archivos %}
+                    {% if archivo.archivo.url %}
+                        <li><a href="{{ archivo.archivo.url }}" target="_blank">{{ archivo.archivo.name }}</a>
+                            <form method="post" style="display:inline;" action="{% url 'eliminar-archivo' archivo.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar este archivo?');">&#x1F5D1;</button>
+                            </form>
+                        </li>
+                    {% endif %}
+                {% endfor %}   
+        {% endif %} 
+
+        {% if user in user_visita%}
+            <h2>Archivos cargados:</h2>
+            <ul>
+                {% for archivo in archivos %}
+                    {% if archivo.archivo.url %}
+                        <li><a href="{{ archivo.archivo.url }}" target="_blank">{{ archivo.archivo.name }}</a>
+                        </li>
+                    {%endif%}
+                {%endfor%}
+        {%endif%}
+    </form>
+
+
+</div>
+
+{% endblock contenedor %}
+
+
+
+
+

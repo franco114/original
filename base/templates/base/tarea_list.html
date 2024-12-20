@@ -1,0 +1,68 @@
+{% extends "base/principal.html" %}
+{% block content %}
+
+<div class="barra-superior">
+    <h1>Sistema de gestión y seguimiento del Monitoreo Ambiental Radiológico</h1>
+    {% if request.user.is_authenticated %}
+    <a href="{% url 'grupos_trabajo' %}" class="boton-salir">Volver</a>
+    {% else %}
+    <a href="{% url 'login' %}" class="button-filtro">Ingresar</a>
+    {% endif %}
+
+</div>
+
+<!-- Filtros -->
+<form method="GET" action="{% url 'tareas' %}" class="filtros-nav">
+    <div class="filtro-grupo">
+        <label for="titulo">Buscar por título</label>
+        <input type="text" name="titulo" placeholder="Buscar por título" value="{{ valor_buscado }}">
+    </div>
+    <div class="filtro-grupo">
+        <label for="completo">Muestras Recolectadas</label>
+        <select name="completo">
+            <option value="">Seleccione</option>
+            <option value="True" {% if completo == "True" %}selected{% endif %}>Sí</option>
+            <option value="False" {% if completo == "False" %}selected{% endif %}>No</option>
+        </select>
+    </div>
+    <div class="filtro-grupo">
+        <label for="medicion_completa">Medición Completa</label>
+        <select name="medicion_completa">
+            <option value="">Seleccione</option>
+            <option value="True" {% if medicion_completa == "True" %}selected{% endif %}>Sí</option>
+            <option value="False" {% if medicion_completa == "False" %}selected{% endif %}>No</option>
+        </select>
+    </div>
+    <input type="hidden" name="grupo" value="{{ grupo_id }}">
+    <input type="hidden" name="anio" value="{{ anio }}">
+    <button type="submit" class="button-filtro">Aplicar filtros</button>
+</form>
+<!-- Fin de Filtros -->
+
+<div class="envoltorio-items-tarea">
+    {% for tarea in tareas %}
+    <div class="envoltorio-tarea">
+        {% if tarea.completo and tarea.medicion_completa %}
+        <div class="titulo-tarea">
+            <div class="icono-medicion-completa"></div>
+            <i><a href="{% url 'editar-tarea' tarea.id %}">{{ tarea.titulo }}&nbsp;&nbsp;&nbsp;&nbsp;Muestra Obtenida por:<strong>&nbsp;{{ tarea.integrantes }}</strong>&nbsp;&nbsp;&nbsp;&nbsp;Estado: Medida&nbsp;<strong>{{ tarea.fecha_medicion }}</strong></a></i>
+        </div>
+        <td><a href="{% url 'editar-tarea' tarea.id %}">&#8684;</a></td>
+        {% elif tarea.completo %}
+        <div class="titulo-tarea">
+            <div class="icono-tarea-completa"></div>
+            <i><a href="{% url 'editar-tarea' tarea.id %}">{{ tarea.titulo }}&nbsp;&nbsp;&nbsp;&nbsp;Muestra Obtenida por:&nbsp;{{ tarea.integrantes }}&nbsp;&nbsp;&nbsp;&nbsp;<strong>Falta medir</strong></a></i>
+        </div>
+        <td><a href="{% url 'editar-tarea' tarea.id %}">&#8684;</a></td>
+        {% else %}
+        <div class="titulo-tarea">
+            <div class="icono-tarea-incompleta"></div>
+            <a href="{% url 'editar-tarea' tarea.id %}">{{ tarea.titulo }}&nbsp;&nbsp;&nbsp;&nbsp;Estado: Sin muestra&nbsp;&nbsp;&nbsp;&nbsp;Fecha limite:<strong>&nbsp;{{ tarea.fecha }}</strong></a>
+        </div>
+        <td><a href="{% url 'editar-tarea' tarea.id %}">&#8684;</a></td>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock content %}

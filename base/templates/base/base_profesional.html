@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NUCLEOELECTRICA ARGENTINA S.A.{% endblock title %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url('/media/imagenes/aaaaaaa.jpg') no-repeat center center fixed;
+        }
+        .navbar {
+            background-color: #343a40;
+            position: relative;
+        }
+        .navbar-brand {
+            color: #ffffff;
+        }
+        .navbar .logout-form {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .navbar .logout-form input[type="submit"] {
+            background: none;
+            border: none;
+            color: #ffffff;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .container {
+            padding-top: 20px;
+        }
+        footer {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+        }
+        .content-wrapper {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .title-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .title-container h1 {
+            font-size: 28px;
+            color: #333;
+            background-color: #e0e0e0;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .grupos-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .grupo-card {
+            background-color: #333;
+            border-radius: 10px;
+            padding: 5px 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            margin: 10px;
+            position: relative;
+            transition: box-shadow 0.3s;
+            color: #fff;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+        .grupo-card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .grupos-trabajo {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+        }
+        .grupo-trabajo {
+            margin: 10px 0;
+            position: relative;
+        }
+        .grupo-trabajo h3 {
+            cursor: pointer;
+            margin: 0;
+        }
+        .anios {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            top: 0;
+            left: 100%;
+            margin-left: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 3;
+        }
+        .anio {
+            background-color: #6c757d;
+            color: #ffffff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .anio:hover {
+            background-color: #5a6268;
+        }
+        .grupo-card-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+        }
+        .muestras-vencidas-container .button-filtro {
+            font-size: 0.75rem;
+            padding: 5px 10px;
+        }
+    </style>
+    {% block custom_css %}
+    {% endblock custom_css %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">NUCLEOELECTRICA ARGENTINA S.A.</a>
+        {% if request.user.is_authenticated %}
+        <form class="logout-form" action="{% url 'logout' %}" method="POST">
+            {% csrf_token %}
+            <input type="submit" value="Cerrar sesión">
+        </form>
+        {% endif %}
+    </nav>
+    <div class="container">
+        {% block content %}
+        {% endblock content %}
+    </div>
+    <footer>
+        <p>&copy; 2024 NUCLEOELECTRICA ARGENTINA S.A. Todos los derechos reservados.</p>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    {% block custom_js %}
+    {% endblock custom_js %}
+</body>
+</html>

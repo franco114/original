@@ -1,0 +1,162 @@
+{% extends "base/base_profesional.html" %}
+{% block title %}Grupos de Trabajo{% endblock title %}
+
+{% block logout_button %}
+{% if request.user.is_authenticated %}
+<form class="logout-form" action="{% url 'logout' %}" method="POST">
+    {% csrf_token %}
+    <input type="submit" value="Cerrar sesión">
+</form>
+{% endif %}
+{% endblock logout_button %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="title-container">
+        <h1>Sistema de gestión y seguimiento del Monitoreo Ambiental Radiológico</h1>
+    </div>
+    
+    <div class="grupo-card-container">
+        <!-- Quincenales -->
+        <div class="grupo-card">
+            <h2>Quincenales</h2>
+            <div class="grupos-trabajo">
+                {% for grupo in grupos %}
+                {% if grupo.titulo == "FALL OUT" or grupo.titulo == "CONDENSADO" or grupo.titulo == "FILTROS" or grupo.titulo == "FILTRO" %}
+                <div class="grupo-trabajo" data-grupo="{{ grupo.id }}">
+                    <h3>{{ grupo.titulo }}</h3>
+                    <div class="anios">
+                        {% for anio in grupo.anios.all %}
+                        <div class="anio" data-anio="{{ anio.anio }}">{{ anio.anio }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <hr>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Mensuales -->
+        <div class="grupo-card">
+            <h2>Mensuales</h2>
+            <div class="grupos-trabajo">
+                {% for grupo in grupos %}
+                {% if grupo.titulo == "AGUA SUB" or grupo.titulo == "AGUA DE RIO" or grupo.titulo == "LECHE" or grupo.titulo == "DIETA" or grupo.titulo == "AGUA CONSUMO HUMANO" %}
+                <div class="grupo-trabajo" data-grupo="{{ grupo.id }}">
+                    <h3>{{ grupo.titulo }}</h3>
+                    <div class="anios">
+                        {% for anio in grupo.anios.all %}
+                        <div class="anio" data-anio="{{ anio.anio }}">{{ anio.anio }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <hr>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Semestrales -->
+        <div class="grupo-card">
+            <h2>Semestrales</h2>
+            <div class="grupos-trabajo">
+                {% for grupo in grupos %}
+                {% if grupo.titulo == "SUELOS" or grupo.titulo == "SEDIMENTOS" or grupo.titulo == "PESCADO" %}
+                <div class="grupo-trabajo" data-grupo="{{ grupo.id }}">
+                    <h3>{{ grupo.titulo }}</h3>
+                    <div class="anios">
+                        {% for anio in grupo.anios.all %}
+                        <div class="anio" data-anio="{{ anio.anio }}">{{ anio.anio }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <hr>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Contador de Muestras Vencidas -->
+    <div class="muestras-vencidas-container" style="margin-top: 20px; text-align: center;">
+        <a href="#" class="button-filtro" id="toggle-muestras-vencidas">
+            Cantidad de muestras vencidas: {{ muestras_vencidas }}
+        </a>
+    </div>
+
+    <!-- Sección de Tareas Vencidas -->
+    <div class="tareas-vencidas-container" id="tareas-vencidas" style="display: none; margin-top: 20px; max-height: 300px; overflow-y: auto; width: 100%;">
+        <h2>Muestras Vencidas</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Grupo de Trabajo</th>
+                    <th>Año</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tarea in tareas_vencidas %}
+                <tr>
+                    <td>{{ tarea.titulo }}</td>
+                    <td>{{ tarea.grupo_de_trabajo }}</td>
+                    <td>{{ tarea.anio }}</td>
+                    <td>{{ tarea.fecha }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.grupo-card').forEach(card => {
+        card.addEventListener('mouseover', function() {
+            this.querySelector('.grupos-trabajo').style.display = 'block';
+        });
+        card.addEventListener('mouseout', function() {
+            const gruposTrabajo = this.querySelector('.grupos-trabajo');
+            setTimeout(() => { if (!gruposTrabajo.matches(':hover')) gruposTrabajo.style.display = 'none'; }, 200);
+        });
+    });
+
+    document.querySelectorAll('.grupo-trabajo').forEach(grupo => {
+        grupo.addEventListener('mouseover', function() {
+            this.querySelector('.anios').style.display = 'block';
+        });
+        grupo.addEventListener('mouseout', function() {
+            const anios = this.querySelector('.anios');
+            setTimeout(() => { if (!anios.matches(':hover')) anios.style.display = 'none'; }, 200);
+        });
+    });
+
+    document.querySelectorAll('.anio').forEach(anio => {
+        anio.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const grupoId = this.closest('.grupo-trabajo').getAttribute('data-grupo');
+            const anio = this.getAttribute('data-anio');
+            window.location.href = `{% url 'tareas' %}?grupo=${grupoId}&anio=${anio}`;
+        });
+    });
+
+    // JavaScript para abrir y cerrar la sección de tareas vencidas
+    document.getElementById('toggle-muestras-vencidas').addEventListener('click', function(event) {
+        event.preventDefault();
+        const tareasVencidasContainer = document.getElementById('tareas-vencidas');
+        if (tareasVencidasContainer.style.display === 'none' || tareasVencidasContainer.style.display === '') {
+            tareasVencidasContainer.style.display = 'block';
+            fetch("{% url 'grupos_trabajo' %}?vencidas=True")
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    tareasVencidasContainer.innerHTML = doc.getElementById('tareas-vencidas').innerHTML;
+                });
+        } else {
+            tareasVencidasContainer.style.display = 'none';
+        }
+    });
+</script>
+{% endblock content %}

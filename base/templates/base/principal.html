@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Abel&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@1,300&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #ffffff;
+            font-family: "Abel", sans-serif;
+            margin: 0; /* Elimina el margen predeterminado del cuerpo */
+        }
+
+        .container {
+            width: 100%;
+            margin: 0; /* Elimina el margen de la container */
+            background-color: #E1DFDE;
+            .webkit-box-shadow: 2px 2px 13px -4px rgba(0, 0, 0, 0.21);
+            box-shadow: 2px 2px 13px -4px rgba(0, 0, 0, 0.21);
+        }
+
+        h2, h3, h4, h5, h6 {
+            font-family: "Lato", sans-serif;
+        }
+
+        a, p {
+            color: #996E66;
+        }
+        .boton-salir {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background-color: #ffffff; /* Fondo blanco */
+            color: #4D9FE3; /* Texto en color azul */
+            border: 1px solid #4D9FE3; /* Borde azul */
+            border-radius: 5px; /* Bordes redondeados */
+            padding: 10px 20px; /* Espaciado interno */
+            text-align: center; /* Centrar el texto */
+            font-size: 16px; /* Tamaño de la fuente */
+            cursor: pointer; /* Puntero de ratón como una mano */
+            z-index: 1000; /* Asegura que esté encima de otros elementos */
+            transition: background-color 0.3s, color 0.3s; /* Transiciones suaves */
+        }
+        
+        .boton-salir:hover {
+            background-color: #e0f7ff; /* Ligero fondo azul al pasar el ratón */
+            color: #4D9FE3; /* Texto permanece azul */
+        }
+        
+        /* Asegúrate de que el contenedor tenga una posición relativa */
+        .container {
+            position: relative;
+        }
+        
+        
+        .barra-superior {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 20px;
+            background-image: url('/media/imagenes/aaaa.png');
+            background-size: auto 100%;
+            background-repeat: no-repeat;
+            background-position: left center;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            justify-content: center;
+        }
+
+        .barra-superior h1 {
+            font-family: 'Lato', sans-serif; /* Puedes cambiar a cualquier fuente que prefieras */
+            font-weight: 700; /* Negrita */
+            color: #333333; /* Color del texto */
+            font-size: 24px; /* Tamaño del texto */
+            margin: 0; /* Elimina el margen */
+            padding: 10px 20px; /* Añade relleno alrededor del texto */
+            background: linear-gradient(90deg, #e0e0e0, #f5f5f5); /* Fondo degradado */
+            border-radius: 5px; /* Bordes redondeados */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra */
+        }
+
+        
+        .barra-superior a {
+            color: rgb(255, 255, 255);
+            text-decoration: none;
+        }
+
+        .envoltorio-tarea {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: #ffffff;
+            border-top: 1px solid rgb(225, 225, 225);
+        }
+
+        .titulo-tarea {
+            display: flex;
+        }
+
+        .titulo-tarea a {
+            text-decoration: none;
+            color: #4b5156;
+            margin-left: 10px;
+        }
+
+        .icono-medicion-completa {
+            height: 20px;
+            width: 20px;
+            background-color: rgb(105, 162, 105);
+            border-radius: 50px;
+        }
+
+        .icono-tarea-incompleta {
+            height: 20px;
+            width: 20px;
+            background-color: rgb(218, 218, 218);
+            border-radius: 50px;
+        }
+
+        .icono-tarea-completa {
+            height: 20px;
+            width: 20px;
+            background-color: rgb(255, 255, 0);
+            border-radius: 50px;
+        }
+
+        #envoltorio-buscar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+
+        input[type=text], input[type=password], textarea {
+            border: 1px solid #EB796F;
+            border-radius: 5px;
+            padding: 10px;
+            width: 90%;
+        }
+
+        .input-busqueda {
+            width: 300px;
+            max-width: 20%;
+        }
+
+        label {
+            padding-top: 10px !important;
+            display: block;
+        }
+
+        .button {
+            border: 1px solid #EB796F;
+            background-color: #fafafa;
+            color: #EB796F;
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .cuerpo-tarjeta {
+            padding: 20px;
+        }
+
+        .filtros-contenedor {
+            display: flex;
+            flex-wrap: wrap; /* Permite que los elementos se ajusten en varias líneas si es necesario */
+            justify-content: space-between; /* Espacia uniformemente los elementos */
+        }
+
+        .filtro-grupo {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px; /* Espacio entre los grupos de filtros */
+            width: 48%; /* Ajusta el ancho al 48% para dos columnas */
+        }
+
+        .filtro-grupo label {
+            margin-bottom: 5px; /* Espacio entre la etiqueta y el selector */
+        }
+
+        .filtro-grupo select {
+            margin-bottom: 5px; /* Espacio entre el selector y el siguiente elemento */
+        }
+
+        .button-filtro {
+            margin-top: 10px; /* Espacio entre los filtros y el botón */
+        }
+
+        .filtros-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #dcdcdc;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: #ffffff;
+        }
+
+        .filtro-grupo {
+            display: flex;
+            flex-direction: column;
+            margin: 0 10px; /* Espacio entre los grupos de filtros */
+        }
+
+        .filtro-grupo label {
+            margin-bottom: 5px;
+            color: #000000;
+        }
+
+        .filtro-grupo select, .filtro-grupo input {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #3A8ACC;
+            background-color: #ffffff;
+            color: #4b5156;
+        }
+
+        .button-filtro {
+            background-color: #ffffff;
+            color: #4D9FE3;
+            border: 1px solid #4D9FE3;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .button-filtro:hover {
+            background-color: #4D9FE3;
+            color: #ffffff;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% block content %}
+        {% endblock content %}
+    </div>
+</body>
+</html>

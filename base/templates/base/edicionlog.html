@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            background: url('/media/imagenes/centrales.jpg') no-repeat center center fixed; /* Imagen de fondo */
+            background-size: cover; /* Ajusta la imagen para cubrir toda la pantalla */
+            position: relative;
+            font-family: "Abel", sans-serif;
+            margin: 0; /* Elimina el margen predeterminado del cuerpo */
+        }
+        
+        .login-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh; /* Ajusta la altura al 100% de la vista */
+            backdrop-filter: blur(5px); /* Aplica el efecto de desenfoque */
+        }
+        
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.6); /* Color blanco con opacidad para efecto de niebla */
+            z-index: -1; /* Envía la superposición detrás del contenido */
+        }
+        
+        .barra-superior {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Centra el contenido horizontalmente */
+            padding: 15px 30px;
+            background-color: #343a40; /* Negro con un tono gris */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            color: #ffffff;
+            width: 80%; /* Asegura que la barra ocupe gran parte del ancho del contenedor */
+            max-width: 600px; /* Limita el ancho máximo */
+            margin-bottom: 20px; /* Añade espacio debajo de la barra */
+        }
+        
+        .barra-superior h1 {
+            font-family: 'Lato', sans-serif; /* Puedes cambiar a cualquier fuente que prefieras */
+            font-weight: 700; /* Negrita */
+            color: #ffffff; /* Color del texto */
+            font-size: 28px; /* Tamaño del texto */
+            margin: 0; /* Elimina el margen */
+        }
+        
+        .cuerpo-tarjeta {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 80%; /* Asegura que ocupe gran parte del ancho disponible */
+            max-width: 600px; /* Limita el ancho máximo */
+            margin: 0 auto; /* Centra la tarjeta */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .formulario input[type="text"],
+        .formulario input[type="password"],
+        .formulario input[type="submit"] {
+            width: 90%; /* Ajusta el ancho al 80% del contenedor */
+            max-width: 300px; /* Limita el ancho máximo a 300px */
+            padding: 15px;
+            margin: 10px 0; /* Espacio entre los elementos del formulario */
+            border: 1px solid #ced4da; /* Borde gris claro */
+            border-radius: 5px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .formulario input[type="submit"] {
+            background-color: #007bff; /* Azul vibrante */
+            color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .formulario input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="conta">
+        {% block contenedor %}
+
+        {% endblock contenedor %}
+    </div>
+</body>
+</html>
