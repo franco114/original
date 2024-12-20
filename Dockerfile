@@ -1,39 +1,26 @@
-# Usa una imagen base oficial de Python 3.10
+# Usa una imagen base de Python
 FROM python:3.10-slim
 
-# Instala las dependencias del sistema
-RUN apt-get update && \
-    apt-get install -y \
-    gcc \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Establece el directorio de trabajo en el contenedor
+# Establece el directorio de trabajo en /app
 WORKDIR /app
 
-# Instala pip y crea un entorno virtual
-RUN python -m venv venv
-RUN /app/venv/bin/pip install --upgrade pip
-
-# Copia el archivo requirements.txt en el directorio de trabajo
+# Copia los archivos de requisitos al contenedor
 COPY requirements.txt .
 
-# Instala las dependencias del proyecto en el entorno virtual
-RUN /app/venv/bin/pip install --no-cache-dir -r requirements.txt
+# Instala las dependencias
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia el contenido del proyecto en el directorio de trabajo
+# Copia todo el contenido de tu proyecto al contenedor
 COPY . .
 
-# Realiza las migraciones de la base de datos
-RUN /app/venv/bin/python manage.py migrate
+# Establece la variable de entorno de Django
+ENV DJANGO_SETTINGS_MODULE=proyecto.settings
 
-# Recoge los archivos estáticos
-RUN /app/venv/bin/python manage.py collectstatic --noinput
+# Expone el puerto en el que se ejecuta la aplicación
+EXPOSE 8000
 
-# Expone el puerto 8080
-EXPOSE 8080
+# Ejecuta las migraciones y el servidor
+CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
 
-# Define el comando de inicio para ejecutar el servidor Gunicorn
-CMD ["/app/venv/bin/gunicorn", "--bind", "0.0.0.0:8080", "proyecto.wsgi:application"]
 
 
