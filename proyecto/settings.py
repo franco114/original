@@ -77,19 +77,15 @@ TEMPLATES = [
 WSGI_APPLICATION = 'proyecto.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-# Ajuste para usar MySQL en lugar de SQLite
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'db.sqlite3',
-        'USER': 'franco',
-        'PASSWORD': '1357',
-        'HOST': 'localhost',  # Generalmente 'localhost'
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+ALLOWED_HOSTS = ['mediciones1-2t9ri9ga.b4a.run', '.back4app.io', 'tu_dominio.com']
+
 
 
 # Password validation
